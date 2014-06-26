@@ -1,0 +1,7 @@
+/Binder.Core/bin
+/Binder.Core/obj
+/Binder.Core.Tests/bin
+/Binder.Core.Tests/obj
+/Binder.Core/*.suo
+/*.suo
+/*.user
