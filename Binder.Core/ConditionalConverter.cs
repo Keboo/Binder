@@ -8,12 +8,11 @@ using System.Windows.Data;
 using DynamicExpression = System.Linq.Dynamic.DynamicExpression;
 using Expression = System.Linq.Expressions.Expression;
 
-
 namespace Binder.Core
 {
     public class ConditionalConverter : IMultiValueConverter
     {
-        private static readonly IDictionary<string, Func<object[], object>> _methods = new Dictionary<string, Func<object[], object>>();
+        private static readonly IDictionary<MethodSignature, Func<object[], object>> _methods = new Dictionary<MethodSignature, Func<object[], object>>();
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
@@ -32,10 +31,11 @@ namespace Binder.Core
         {
             lock (_methods)
             {
+                var signature = new MethodSignature(conditionFormat, parameters.Select(x => x != null ? x.GetType() : typeof(object)).ToArray());
                 Func<object[], object> method;
-                if (_methods.TryGetValue(conditionFormat, out method) == false)
+                if (_methods.TryGetValue(signature, out method) == false)
                 {
-                    _methods[conditionFormat] = method = GenerateMethod(conditionFormat, parameters);
+                    _methods[signature] = method = GenerateMethod(conditionFormat, parameters);
                 }
                 return method(parameters);
             }
@@ -47,15 +47,67 @@ namespace Binder.Core
                 Enumerable.Range(0, parameters.Length).Select(x => (object)string.Format("param{0}", x)).ToArray());
             var funcParameters =
                 Enumerable.Range(0, parameters.Length)
-                    .Select(x => Expression.Parameter(parameters[x].GetType(), string.Format("param{0}", x)))
-                    .ToArray();
+                .Select(x => Expression.Parameter(parameters[x] != null ? parameters[x].GetType() : typeof(object),
+                    string.Format("param{0}", x))).ToArray();
 
             LambdaExpression expression = DynamicExpression.ParseLambda(funcParameters, typeof(object), formattedExpression);
             Delegate compiledExpression = expression.Compile();
-            //TODO: This leaves much to be desired
-            Expression<Func<object[], object>> methodFunc = @params => compiledExpression.DynamicInvoke(@params);
+            //var foo = Expression.Call(expression, typeof (Delegate).GetMethod("DynamicInvoke"));
 
+            //IEnumerable<ParameterExpression> p = Enumerable.Range(0, parameters.Length).Select(x => Expression.ArrayIndex(Expression.Parameter(typeof(object[]), "param" + x), Expression.Constant(x)));
+            //Expression.Lambda(expression, p);
+            //return Expression.Lambda<Func<object[], object>>(callExpression).Compile();
+            Expression<Func<object[], object>> methodFunc = @params => compiledExpression.DynamicInvoke(@params);
             return methodFunc.Compile();
+        }
+
+        private class MethodSignature
+        {
+            public MethodSignature(string conditionFormat, IList<Type> parameterTypes)
+            {
+                ConditionFormat = conditionFormat;
+                ParameterTypes = parameterTypes;
+            }
+
+            private string ConditionFormat { get; set; }
+            private IList<Type> ParameterTypes { get; set; }
+
+            private bool Equals(MethodSignature other)
+            {
+                if (string.Equals(ConditionFormat, other.ConditionFormat))
+                {
+                    if (ReferenceEquals(ParameterTypes, other.ParameterTypes))
+                        return true;
+                    if (ParameterTypes != null && other.ParameterTypes != null &&
+                        ParameterTypes.Count == other.ParameterTypes.Count)
+                    {
+                        return ParameterTypes.Where((t, i) => t != other.ParameterTypes[i]).Any() == false;
+                    }
+                }
+
+                return false;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                if (obj.GetType() != GetType()) return false;
+                return Equals((MethodSignature)obj);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    int rv = (ConditionFormat != null ? ConditionFormat.GetHashCode() : 0) * 397;
+                    if (ParameterTypes != null)
+                    {
+                        rv = ParameterTypes.Aggregate(rv, (current, type) => current ^ type.GetHashCode());
+                    }
+                    return rv;
+                }
+            }
         }
     }
 }

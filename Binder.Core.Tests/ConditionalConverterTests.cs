@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Diagnostics;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Binder.Core.Tests
 {
@@ -10,9 +12,9 @@ namespace Binder.Core.Tests
         {
             const string conditionFormat = "{0} > 3";
             var converter = new ConditionalConverter();
-            object result = converter.Convert(new object[] {1}, null, conditionFormat, null);
+            object result = ShowTiming("Inequality comparision", () => converter.Convert(new object[] {1}, null, conditionFormat, null));
             Assert.AreEqual(false, result);
-            result = converter.Convert(new object[] { 4 }, null, conditionFormat, null);
+            result = ShowTiming("Inequality comparison, cached", () => converter.Convert(new object[] { 4 }, null, conditionFormat, null));
             Assert.AreEqual(true, result);
         }
 
@@ -21,9 +23,9 @@ namespace Binder.Core.Tests
         {
             const string conditionFormat = "{0} > 3.0";
             var converter = new ConditionalConverter();
-            object result = converter.Convert(new object[] { 5 }, null, conditionFormat, null);
+            object result = ShowTiming("Inequality, type conversion", () => converter.Convert(new object[] { 5 }, null, conditionFormat, null));
             Assert.AreEqual(true, result);
-            result = converter.Convert(new object[] { 0 }, null, conditionFormat, null);
+            result = ShowTiming("Inequality, type conversion cached", () => converter.Convert(new object[] { 0 }, null, conditionFormat, null));
             Assert.AreEqual(false, result);
         }
 
@@ -32,8 +34,10 @@ namespace Binder.Core.Tests
         {
             const string conditionFormat = "{0} != null";
             var converter = new ConditionalConverter();
-            object result = converter.Convert(new[] { new object() }, null, conditionFormat, null);
+            object result = ShowTiming("Object comparison", () => converter.Convert(new[] { new object() }, null, conditionFormat, null));
             Assert.AreEqual(true, result);
+            result = ShowTiming("Object comparison, cached", () => converter.Convert(new object[] { null }, null, conditionFormat, null));
+            Assert.AreEqual(false, result);
         }
 
         [TestMethod]
@@ -41,11 +45,11 @@ namespace Binder.Core.Tests
         {
             const string conditionFormat = "({0} && {1}) || {2}";
             var converter = new ConditionalConverter();
-            object result = converter.Convert(new object[] { true, true, false }, null, conditionFormat, null);
+            object result = ShowTiming("MultipleBooleanParameters", () => converter.Convert(new object[] { true, true, false }, null, conditionFormat, null));
             Assert.AreEqual(true, result);
-            result = converter.Convert(new object[] { true, false, true }, null, conditionFormat, null);
+            result = ShowTiming("MultipleBooleanParameters, cached", () => converter.Convert(new object[] { true, false, true }, null, conditionFormat, null));
             Assert.AreEqual(true, result);
-            result = converter.Convert(new object[] { true, false, false }, null, conditionFormat, null);
+            result = ShowTiming("MultipleBooleanParameters, cached", () => converter.Convert(new object[] { true, false, false }, null, conditionFormat, null));
             Assert.AreEqual(false, result);
         }
 
@@ -54,11 +58,31 @@ namespace Binder.Core.Tests
         {
             const string conditionFormat = "{0} == {1}";
             var converter = new ConditionalConverter();
-            object result = converter.Convert(new[] { new object(), new object() }, null, conditionFormat, null);
+            object result = ShowTiming("Object comparison", () => converter.Convert(new[] { new object(), new object() }, null, conditionFormat, null));
             Assert.AreEqual(false, result);
-            object obj = new object();
-            result = converter.Convert(new[] { obj, obj }, null, conditionFormat, null);
+            var obj = new object();
+            result = ShowTiming("Object comparision, cached", () => converter.Convert(new[] { obj, obj }, null, conditionFormat, null));
             Assert.AreEqual(true, result);
+        }
+
+        [TestMethod]
+        public void DifferentSignaturesWork()
+        {
+            const string conditionFormat = "0 < {0}";
+            var converter = new ConditionalConverter();
+            object result1 = converter.Convert(new object[] {1}, null, conditionFormat, null);
+            Assert.AreEqual(true, result1);
+            object result2 = converter.Convert(new object[] {1L}, null, conditionFormat, null);
+            Assert.AreEqual(true, result2);
+        }
+
+        private T ShowTiming<T>(string title, Func<T> method)
+        {
+            var sw = Stopwatch.StartNew();
+            var rv = method();
+            sw.Stop();
+            Debug.WriteLine("{0}, {1}", title, sw.Elapsed);
+            return rv;
         }
     }
 }
