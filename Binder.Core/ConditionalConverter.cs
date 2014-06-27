@@ -52,12 +52,11 @@ namespace Binder.Core
 
             LambdaExpression expression = DynamicExpression.ParseLambda(funcParameters, typeof(object), formattedExpression);
             ParameterExpression initalParameter = Expression.Parameter(typeof(object[]));
-            var foo = Enumerable.Range(0, parameterTypes.Length)
+            var invokeParameters = Enumerable.Range(0, parameterTypes.Length)
                     .Select(x => Expression.ConvertChecked(Expression.ArrayIndex(initalParameter, Expression.Constant(x)),
                                 parameterTypes[x]));
-            var invokeExp = Expression.Invoke(expression, foo);
-            var end = Expression.Lambda<Func<object[], object>>(invokeExp, initalParameter);
-            return end.Compile();
+            var invokeExpression = Expression.Invoke(expression, invokeParameters);
+            return Expression.Lambda<Func<object[], object>>(invokeExpression, initalParameter).Compile();
         }
 
         private class MethodSignature
