@@ -31,30 +31,30 @@ namespace Binder.Core
         {
             lock (_methods)
             {
-                var signature = new MethodSignature(conditionFormat, parameters.Select(x => x != null ? x.GetType() : typeof(object)).ToArray());
+                Type[] parameterTypes = parameters.Select(x => x != null ? x.GetType() : typeof (object)).ToArray();
+                var signature = new MethodSignature(conditionFormat, parameterTypes);
                 Func<object[], object> method;
                 if (_methods.TryGetValue(signature, out method) == false)
                 {
-                    _methods[signature] = method = GenerateMethod(conditionFormat, parameters);
+                    _methods[signature] = method = GenerateMethod(conditionFormat, parameterTypes);
                 }
                 return method(parameters);
             }
         }
 
-        private static Func<object[], object> GenerateMethod(string conditionFormat, object[] parameters)
+        private static Func<object[], object> GenerateMethod(string conditionFormat, Type[] parameterTypes)
         {
             string formattedExpression = string.Format(conditionFormat,
-                Enumerable.Range(0, parameters.Length).Select(x => (object)string.Format("param{0}", x)).ToArray());
+                Enumerable.Range(0, parameterTypes.Length).Select(x => (object)string.Format("param{0}", x)).ToArray());
             var funcParameters =
-                Enumerable.Range(0, parameters.Length)
-                .Select(x => Expression.Parameter(parameters[x] != null ? parameters[x].GetType() : typeof(object),
-                    string.Format("param{0}", x))).ToArray();
+                Enumerable.Range(0, parameterTypes.Length)
+                .Select(x => Expression.Parameter(parameterTypes[x], string.Format("param{0}", x))).ToArray();
 
             LambdaExpression expression = DynamicExpression.ParseLambda(funcParameters, typeof(object), formattedExpression);
             ParameterExpression initalParameter = Expression.Parameter(typeof(object[]));
-            var foo = Enumerable.Range(0, parameters.Length)
+            var foo = Enumerable.Range(0, parameterTypes.Length)
                     .Select(x => Expression.ConvertChecked(Expression.ArrayIndex(initalParameter, Expression.Constant(x)),
-                                parameters[x] != null ? parameters[x].GetType() : typeof(object)));
+                                parameterTypes[x]));
             var invokeExp = Expression.Invoke(expression, foo);
             var end = Expression.Lambda<Func<object[], object>>(invokeExp, initalParameter);
             return end.Compile();
