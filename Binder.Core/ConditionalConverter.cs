@@ -51,14 +51,13 @@ namespace Binder.Core
                     string.Format("param{0}", x))).ToArray();
 
             LambdaExpression expression = DynamicExpression.ParseLambda(funcParameters, typeof(object), formattedExpression);
-            Delegate compiledExpression = expression.Compile();
-            //var foo = Expression.Call(expression, typeof (Delegate).GetMethod("DynamicInvoke"));
-
-            //IEnumerable<ParameterExpression> p = Enumerable.Range(0, parameters.Length).Select(x => Expression.ArrayIndex(Expression.Parameter(typeof(object[]), "param" + x), Expression.Constant(x)));
-            //Expression.Lambda(expression, p);
-            //return Expression.Lambda<Func<object[], object>>(callExpression).Compile();
-            Expression<Func<object[], object>> methodFunc = @params => compiledExpression.DynamicInvoke(@params);
-            return methodFunc.Compile();
+            ParameterExpression initalParameter = Expression.Parameter(typeof(object[]));
+            var foo = Enumerable.Range(0, parameters.Length)
+                    .Select(x => Expression.ConvertChecked(Expression.ArrayIndex(initalParameter, Expression.Constant(x)),
+                                parameters[x] != null ? parameters[x].GetType() : typeof(object)));
+            var invokeExp = Expression.Invoke(expression, foo);
+            var end = Expression.Lambda<Func<object[], object>>(invokeExp, initalParameter);
+            return end.Compile();
         }
 
         private class MethodSignature
