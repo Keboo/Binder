@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Binder.Core", "Binder.Core\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Binder.Core.Tests", "Binder.Core.Tests\Binder.Core.Tests.csproj", "{CA66048F-888B-4DE5-A699-C4FCE0250191}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Binder.Demo", "Binder.Demo\Binder.Demo.csproj", "{A5A59BB9-1FFF-4A36-AF05-E6DA2D9C1279}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{CA66048F-888B-4DE5-A699-C4FCE0250191}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA66048F-888B-4DE5-A699-C4FCE0250191}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA66048F-888B-4DE5-A699-C4FCE0250191}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5A59BB9-1FFF-4A36-AF05-E6DA2D9C1279}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5A59BB9-1FFF-4A36-AF05-E6DA2D9C1279}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5A59BB9-1FFF-4A36-AF05-E6DA2D9C1279}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5A59BB9-1FFF-4A36-AF05-E6DA2D9C1279}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,14 +5,20 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Markup;
 using DynamicExpression = System.Linq.Dynamic.DynamicExpression;
 using Expression = System.Linq.Expressions.Expression;
 
 namespace Binder.Core
 {
-    public class ConditionalConverter : IMultiValueConverter
+    public class ConditionalConverter : MarkupExtension, IMultiValueConverter
     {
         private static readonly IDictionary<MethodSignature, Func<object[], object>> _methods = new Dictionary<MethodSignature, Func<object[], object>>();
+
+        public override object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return this;
+        }
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
@@ -49,7 +55,7 @@ namespace Binder.Core
             var funcParameters =
                 Enumerable.Range(0, parameterTypes.Length)
                 .Select(x => Expression.Parameter(parameterTypes[x], string.Format("param{0}", x))).ToArray();
-
+            
             LambdaExpression expression = DynamicExpression.ParseLambda(funcParameters, typeof(object), formattedExpression);
             ParameterExpression initalParameter = Expression.Parameter(typeof(object[]));
             var invokeParameters = Enumerable.Range(0, parameterTypes.Length)

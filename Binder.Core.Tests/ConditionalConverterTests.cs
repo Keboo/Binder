@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Windows;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Binder.Core.Tests
@@ -54,6 +55,37 @@ namespace Binder.Core.Tests
         }
 
         [TestMethod]
+        public void AlternateBooleanOperatorsAllowed()
+        {
+            const string conditionFormat = "({0} and {1}) or {2}";
+            var converter = new ConditionalConverter();
+            object result = ShowTiming("AlternateBooleanOperatorsAllowed", () => converter.Convert(new object[] { true, true, false }, null, conditionFormat, null));
+            Assert.AreEqual(true, result);
+            result = ShowTiming("AlternateBooleanOperatorsAllowed, cached", () => converter.Convert(new object[] { true, false, true }, null, conditionFormat, null));
+            Assert.AreEqual(true, result);
+            result = ShowTiming("AlternateBooleanOperatorsAllowed, cached", () => converter.Convert(new object[] { true, false, false }, null, conditionFormat, null));
+            Assert.AreEqual(false, result);
+        }
+
+        [TestMethod]
+        public void CanConvertStringToInt32()
+        {
+            const string conditionFormat = "Convert.ToInt32({0})";
+            var converter = new ConditionalConverter();
+            object result = ShowTiming("TypeConversionsAllowed", () => converter.Convert(new object[] { "1" }, null, conditionFormat, null));
+            Assert.AreEqual(1, result);
+        }
+
+        [TestMethod]
+        public void CanConvertStringToInt16()
+        {
+            const string conditionFormat = "Convert.ToInt16({0})";
+            var converter = new ConditionalConverter();
+            object result = ShowTiming("TypeConversionsAllowed", () => converter.Convert(new object[] { "1" }, null, conditionFormat, null));
+            Assert.AreEqual((short)1, result);
+        }
+
+        [TestMethod]
         public void ObjectComparision()
         {
             const string conditionFormat = "{0} == {1}";
@@ -75,6 +107,18 @@ namespace Binder.Core.Tests
             object result2 = converter.Convert(new object[] {1L}, null, conditionFormat, null);
             Assert.AreEqual(true, result2);
         }
+
+        [TestMethod]
+        public void CanCallMethodsOnParameterObjects()
+        {
+            const string conditionFormat = "{0}.StartsWith(\"a\")";
+            var converter = new ConditionalConverter();
+            object result1 = converter.Convert(new object[] { "apple" }, null, conditionFormat, null);
+            Assert.AreEqual(true, result1);
+            object result2 = converter.Convert(new object[] { "fruit" }, null, conditionFormat, null);
+            Assert.AreEqual(false, result2);
+        }
+
 
         private T ShowTiming<T>(string title, Func<T> method)
         {

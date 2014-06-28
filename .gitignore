@@ -5,3 +5,5 @@
 /Binder.Core/*.suo
 /*.suo
 /*.user
+/Binder.Demo/bin
+/Binder.Demo/obj
