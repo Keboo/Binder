@@ -29,6 +29,12 @@
                     <Binding Path="ThirdCollection/" />
                 </MultiBinding>
             </Button.IsEnabled>
+            <Button.Foreground>
+                <MultiBinding Converter="{core:ConditionalConverter}" 
+                              ConverterParameter="({0} &#37; 2 == 0) ? &quot;Red&quot; : &quot;Blue&quot;">
+                    <Binding Path="SecondCollection/" />
+                </MultiBinding>
+            </Button.Foreground>
         </Button>
     </Grid>
 </Window>

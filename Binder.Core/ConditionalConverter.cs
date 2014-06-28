@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -18,6 +19,7 @@ namespace Binder.Core
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
             return this;
+
         }
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
@@ -25,7 +27,18 @@ namespace Binder.Core
             string conditionFormat = parameter as string;
             if (string.IsNullOrWhiteSpace(conditionFormat))
                 return DependencyProperty.UnsetValue;
-            return ConvertValues(conditionFormat, values);
+            var rv = ConvertValues(conditionFormat, values);
+
+            if (targetType != null)
+            {
+                TypeConverter converter = TypeDescriptor.GetConverter(targetType);
+                if (rv != null && converter.CanConvertFrom(rv.GetType()))
+                {
+                    rv = converter.ConvertFrom(rv);
+                }
+            }
+
+            return rv;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

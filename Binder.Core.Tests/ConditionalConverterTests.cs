@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Media;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Binder.Core.Tests
@@ -117,6 +118,17 @@ namespace Binder.Core.Tests
             Assert.AreEqual(true, result1);
             object result2 = converter.Convert(new object[] { "fruit" }, null, conditionFormat, null);
             Assert.AreEqual(false, result2);
+        }
+
+        [TestMethod]
+        public void CanConvertResultingType()
+        {
+            const string conditionFormat = "{0} > 5 ? \"Red\" : \"Blue\"";
+            var converter = new ConditionalConverter();
+            object result1 = converter.Convert(new object[] { 10 }, typeof(Brush), conditionFormat, null);
+            Assert.AreEqual(new SolidColorBrush(Colors.Red), result1);
+            object result2 = converter.Convert(new object[] { 0 }, typeof(Brush), conditionFormat, null);
+            Assert.AreEqual(new SolidColorBrush(Colors.Blue), result2);
         }
 
 
