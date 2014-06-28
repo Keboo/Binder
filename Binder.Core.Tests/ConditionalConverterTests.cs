@@ -126,9 +126,13 @@ namespace Binder.Core.Tests
             const string conditionFormat = "{0} > 5 ? \"Red\" : \"Blue\"";
             var converter = new ConditionalConverter();
             object result1 = converter.Convert(new object[] { 10 }, typeof(Brush), conditionFormat, null);
-            Assert.AreEqual(new SolidColorBrush(Colors.Red), result1);
+            var redBrush = result1 as SolidColorBrush;
+            Assert.IsNotNull(redBrush);
+            Assert.AreEqual(Colors.Red, redBrush.Color);
             object result2 = converter.Convert(new object[] { 0 }, typeof(Brush), conditionFormat, null);
-            Assert.AreEqual(new SolidColorBrush(Colors.Blue), result2);
+            var blueBrush = result2 as SolidColorBrush;
+            Assert.IsNotNull(blueBrush);
+            Assert.AreEqual(Colors.Blue, blueBrush.Color);
         }
 
 

@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="ConditionalConverterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MethodSignatureTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Binder.Core\Binder.Core.csproj">
