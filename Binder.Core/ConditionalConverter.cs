@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
-using DynamicExpression = System.Linq.Dynamic.DynamicExpression;
-using Expression = System.Linq.Expressions.Expression;
 
 namespace Binder.Core
 {
