@@ -46,8 +46,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConditionalConverter.cs" />
+    <Compile Include="ConditionalMultiValueConverter.cs" />
+    <Compile Include="ConditionalValueConverter.cs" />
+    <Compile Include="ConstructorInvocationConverter.cs" />
+    <Compile Include="ConstructorInvocationValueConverter.cs" />
     <Compile Include="MethodManager.cs" />
     <Compile Include="MethodSignature.cs" />
+    <Compile Include="MethodInvocationValueConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

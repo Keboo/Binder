@@ -119,6 +119,12 @@ namespace Binder.Core.Tests
             Assert.IsTrue(MethodManager.IsCached(conditionFormat, new[] { typeof(int) }));
         }
 
+        [TestMethod]
+        public void Test()
+        {
+            var result = MethodManager.RunMethod("new (@1 = 1)", new object[0]);
+        }
+
         private T ShowTiming<T>(string title, Func<T> method)
         {
             var sw = Stopwatch.StartNew();

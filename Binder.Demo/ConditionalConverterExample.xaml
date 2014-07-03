@@ -1,0 +1,40 @@
+﻿<Window x:Class="Binder.Demo.ConditionalConverterExample"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:core="clr-namespace:Binder.Core;assembly=Binder.Core"
+        Title="ConditionalConverterExample" Height="300" Width="300"
+        DataContext="{Binding ViewModel, RelativeSource={RelativeSource Self}}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <ComboBox ItemsSource="{Binding FirstCollection}" IsSynchronizedWithCurrentItem="True" />
+        <ComboBox ItemsSource="{Binding SecondCollection}" IsSynchronizedWithCurrentItem="True"
+                  Grid.Column="1" Grid.Row="0"/>
+        <ComboBox ItemsSource="{Binding ThirdCollection}" IsSynchronizedWithCurrentItem="True"
+                  Grid.Column="2" Grid.Row="0"/>
+
+        <Button Grid.ColumnSpan="3" Grid.Column="0" Grid.Row="1" FontSize="20" FontWeight="Bold"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Content="Test" Height="75" Width="100">
+            <Button.IsEnabled>
+                <MultiBinding Converter="{core:ConditionalMultiValueConverter}" ConverterParameter="({0} and {1} > 5) or {2}.EndsWith(&quot;2&quot;)">
+                    <Binding Path="FirstCollection/" />
+                    <Binding Path="SecondCollection/" />
+                    <Binding Path="ThirdCollection/" />
+                </MultiBinding>
+            </Button.IsEnabled>
+            <Button.Foreground>
+                <MultiBinding Converter="{core:ConditionalMultiValueConverter}" 
+                              ConverterParameter="({0} &#37; 2 == 0) ? &quot;Red&quot; : &quot;Blue&quot;">
+                    <Binding Path="SecondCollection/" />
+                </MultiBinding>
+            </Button.Foreground>
+        </Button>
+    </Grid>
+</Window>
