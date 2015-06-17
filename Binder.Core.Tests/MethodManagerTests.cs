@@ -1,11 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Binder.Core.Tests
 {
     [TestClass]
-    public class MethodManagerTests
+    public class MethodManagerTests : TimingTestBase
     {
         [TestMethod]
         public void SimpleInequalityComparision()
@@ -117,21 +115,6 @@ namespace Binder.Core.Tests
             object result1 = MethodManager.RunMethod(conditionFormat, new object[] { 1 });
             Assert.AreEqual(true, result1);
             Assert.IsTrue(MethodManager.IsCached(conditionFormat, new[] { typeof(int) }));
-        }
-
-        [TestMethod]
-        public void Test()
-        {
-            var result = MethodManager.RunMethod("new (@1 = 1)", new object[0]);
-        }
-
-        private T ShowTiming<T>(string title, Func<T> method)
-        {
-            var sw = Stopwatch.StartNew();
-            var rv = method();
-            sw.Stop();
-            Debug.WriteLine("{0}, {1}", title, sw.Elapsed);
-            return rv;
         }
     }
 }

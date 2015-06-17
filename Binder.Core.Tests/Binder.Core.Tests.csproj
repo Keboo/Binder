@@ -58,6 +58,8 @@
     <Compile Include="MethodManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MethodSignatureTests.cs" />
+    <Compile Include="TimingTestBase.cs" />
+    <Compile Include="PerformanceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Binder.Core\Binder.Core.csproj">
